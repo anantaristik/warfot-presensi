@@ -312,21 +312,48 @@ export default function PresensiPage() {
           </h1>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="text-sm text-red-600 font-medium"
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Tombol Dashboard */}
+          <button
+            onClick={() => user && router.push(`/users/${user.uid}`)}
+            className="text-sm text-blue-600 font-medium hover:text-blue-800"
+          >
+            Dashboard
+          </button>
+
+          {/* Tombol Logout */}
+          <button
+            onClick={handleLogout}
+            className="text-sm text-red-600 font-medium"
+          >
+            Logout
+          </button>
+        </div>
       </header>
+
 
       <main className="px-4 py-6 flex flex-col items-center">
         <div className="w-full max-w-md bg-white rounded-lg shadow p-6">
-          {/* Halo + Jam & Tanggal */}
           <div className="mb-4 flex flex-col gap-4">
-            <div className="w-full max-w-md bg-white rounded-lg shadow p-6 text-lg text-black font-bold">
-              Halo, 👋 {userName}
-            </div>
+            <div className="w-full max-w-md rounded-lg shadow p-6 text-lg text-white font-bold flex flex-col items-center gap-3 bg-cover bg-center" style={{ backgroundImage: `url('/bg-anu.png')` }}>
+                {/* Avatar */}
+                <div className="w-25 h-25 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center shadow shadow-lg">
+                  {user?.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-gray-600">
+                      {userName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+
+                {/* Teks */}
+                <span>Halo, 👋 {userName}</span>
+              </div>
 
             <div>
               <p className="text-2xl font-bold text-gray-700 text-center">
