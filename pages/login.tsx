@@ -13,39 +13,53 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
 
-    try {
-      // ✅ Login ke Firebase Auth
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+  try {
+    // ✅ Login ke Firebase Auth
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
 
-      const uid = cred.user.uid;
+    // ✅ Ambil data user dari Firestore
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
 
-      // ✅ Ambil data user dari Firestore
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        throw new Error("Data user tidak ditemukan di Firestore");
-      }
-
-      const userData = userSnap.data();
-
-      // ✅ Redirect berdasarkan role
-      if (userData.role === "admin") {
-        router.push("/dashboard");
-      } else {
-        router.push("/presensi");
-      }
-    } catch (err: any) {
-      console.error("LOGIN ERROR:", err);
-      setError("Email / password salah atau role belum terdaftar.");
-    } finally {
-      setLoading(false);
+    if (!userSnap.exists()) {
+      // ⛔ JANGAN THROW — langsung tampilkan pesan
+      setError("Data user tidak ditemukan. Hubungi admin untuk didaftarkan.");
+      return;
     }
-  };
+
+    const userData = userSnap.data();
+
+    if (!userData.role) {
+      setError("Role pengguna belum diatur. Hubungi admin.");
+      return;
+    }
+
+    // ✅ Redirect berdasarkan role
+    if (userData.role === "admin") {
+      router.push("/dashboard");
+    } else {
+      router.push("/presensi");
+    }
+  } catch (err: any) {
+    console.error("LOGIN ERROR:", err);
+
+    // Biar lebih informatif dikit
+    if (err?.code === "auth/user-not-found" || err?.code === "auth/wrong-password") {
+      setError("Email / password salah.");
+    } else {
+      setError("Email / password salah atau role belum terdaftar.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="min-h-screen text-black flex items-center justify-center bg-gray-100 px-4">
