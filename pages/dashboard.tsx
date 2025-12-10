@@ -93,6 +93,8 @@ export default function DashboardPage() {
   const [photoPublicId, setPhotoPublicId] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   // 🔒 Cek admin
   useEffect(() => {
@@ -326,7 +328,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen flex bg-gray-100 text-black">
       {/* SIDEBAR */}
-      <aside className="w-64 bg-white shadow-md flex flex-col">
+      <aside className="hidden lg:flex w-64 bg-white shadow-md flex-col">
         <div className="px-4 py-4 border-b flex items-center gap-2">
           <img
             src="/logo-waroeng-foto.png"
@@ -363,8 +365,81 @@ export default function DashboardPage() {
         </div>
       </aside>
 
+      {/* MOBILE SIDEBAR OVERLAY */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 lg:hidden">
+          <div className="w-64 h-full bg-white shadow-md p-4 flex flex-col">
+
+            {/* Tombol Close */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="text-right text-xl mb-4"
+            >
+              ✕
+            </button>
+
+            <div className="px-2 py-4 border-b flex items-center gap-2">
+              <img
+                src="/logo-waroeng-foto.png"
+                alt="Waroeng Foto"
+                className="w-9 h-9 object-contain rounded-md"
+              />
+              <div>
+                <p className="font-bold text-sm">Warfot Presensi</p>
+                <p className="text-xs text-gray-500">Admin Panel</p>
+              </div>
+            </div>
+
+            <nav className="flex-1 px-2 py-4 space-y-1 text-sm">
+              <button
+                onClick={() => {
+                  setSidebarOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded bg-gray-100 font-semibold"
+              >
+                Karyawan
+              </button>
+
+              <button
+                disabled
+                className="w-full text-left px-3 py-2 rounded text-gray-400 cursor-not-allowed"
+              >
+                Pengaturan (segera)
+              </button>
+            </nav>
+
+            <div className="px-4 py-3 border-t">
+              <button
+                onClick={async () => {
+                  setSidebarOpen(false);
+                  await handleLogout();
+                }}
+                className="w-full text-sm text-red-600 font-semibold text-left"
+              >
+                Logout
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
       {/* MAIN CONTENT */}
       <main className="flex-1 p-6">
+        {/* HAMBURGER UNTUK MOBILE */}
+          <div className="mb-4 flex items-center justify-between lg:hidden">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-2xl text-gray-700"
+            >
+              ☰
+            </button>
+
+            <span className="text-sm font-semibold text-gray-600">
+              Daftar Karyawan
+            </span>
+          </div>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-lg font-bold">Daftar Karyawan</h1>
           <button
@@ -405,7 +480,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500">{s.email || "-"}</p>
                   {typeof s.hourly_rate === "number" && (
                     <p className="text-xs text-gray-600 mt-1">
-                      Tarif: Rp{s.hourly_rate.toLocaleString("id-ID")}/jam
+                      Rate: Rp{s.hourly_rate.toLocaleString("id-ID")}/jam
                     </p>
                   )}
                 </div>
